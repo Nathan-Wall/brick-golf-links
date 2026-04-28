@@ -1,6 +1,6 @@
-# Brick Golf Links
+# Brick Golf Links 🧱🏌️‍♂️
 
-Multi-domain shortlinks inspired by Google's internal `go/...` pattern.
+Multi-domain shortlinks for sharing and personal use.
 
 ## Self-Hosting
 
