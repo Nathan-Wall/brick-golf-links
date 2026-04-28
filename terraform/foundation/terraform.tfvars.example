@@ -1,0 +1,16 @@
+aws_region = "us-east-1"
+
+name = "go-links"
+
+domains = [
+  "go.example.com",
+  "go.alt-example.com",
+  "go.team.example.com",
+  "go.example.org"
+]
+
+# Optional SES-backed email-code sign-in.
+# email_auth_from_email       = "no-reply@example.com"
+# email_auth_from_name        = "Brick Golf Links"
+# email_auth_hosted_zone_domain = "example.com"
+# email_auth_mail_from_subdomain = "bounce"

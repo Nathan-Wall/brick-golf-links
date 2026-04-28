@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "./apply-self-hosting.ts",
+    "./manage-provisioned-concurrency.ts",
+    "./sync-github-vars-from-terraform.ts",
+    "./doctor-self-hosting.ts"
+  ]
+}

@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+.env.local
+coverage
+client/dist
+server/dist
+*.log
+infra/cdk.out
+cdk-out.txt
+.terraform
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+backend.hcl

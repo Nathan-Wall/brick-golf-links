@@ -1,0 +1,137 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build client
+        run: npm run build --workspace client
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Clean failed stack state
+        run: |
+          set -euo pipefail
+
+          status=""
+          if ! status="$(aws cloudformation describe-stacks \
+            --stack-name GoLinksAppStack \
+            --region "${AWS_REGION}" \
+            --query 'Stacks[0].StackStatus' \
+            --output text 2>/tmp/go-links-stack-status.err)"; then
+            if grep -q "does not exist" /tmp/go-links-stack-status.err; then
+              exit 0
+            fi
+
+            cat /tmp/go-links-stack-status.err >&2
+            exit 1
+          fi
+
+          case "$status" in
+            ROLLBACK_COMPLETE)
+              aws cloudformation delete-stack \
+                --stack-name GoLinksAppStack \
+                --region "${AWS_REGION}"
+              aws cloudformation wait stack-delete-complete \
+                --stack-name GoLinksAppStack \
+                --region "${AWS_REGION}"
+              ;;
+            *_IN_PROGRESS)
+              echo "GoLinksAppStack is currently ${status}. Wait for the previous deployment to finish before retrying." >&2
+              exit 1
+              ;;
+          esac
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+
+      - name: CDK bootstrap check
+        run: npm run cdk:synth --workspace infra
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          EMAIL_AUTH_FROM_EMAIL: ${{ vars.EMAIL_AUTH_FROM_EMAIL }}
+          EMAIL_AUTH_FROM_NAME: ${{ vars.EMAIL_AUTH_FROM_NAME }}
+          EMAIL_AUTH_SES_IDENTITY_ARN: ${{ vars.EMAIL_AUTH_SES_IDENTITY_ARN }}
+          GOOGLE_ANALYTICS_MEASUREMENT_ID: ${{ vars.GOOGLE_ANALYTICS_MEASUREMENT_ID }}
+          GOOGLE_ANALYTICS_API_SECRET: ${{ secrets.GOOGLE_ANALYTICS_API_SECRET }}
+          ALLOWED_EMAILS_JSON: ${{ vars.ALLOWED_EMAILS_JSON }}
+          ALLOWED_EMAIL_DOMAINS_JSON: ${{ vars.ALLOWED_EMAIL_DOMAINS_JSON }}
+          ALLOW_ALL_VERIFIED_GOOGLE_ACCOUNTS: ${{ vars.ALLOW_ALL_VERIFIED_GOOGLE_ACCOUNTS }}
+          SUPER_ADMIN_EMAILS: ${{ vars.SUPER_ADMIN_EMAILS }}
+          DOMAINS_JSON: ${{ vars.DOMAINS_JSON }}
+          APP_VPC_ID: ${{ vars.APP_VPC_ID }}
+          APP_LAMBDA_SECURITY_GROUP_ID: ${{ vars.APP_LAMBDA_SECURITY_GROUP_ID }}
+          APP_PRIVATE_SUBNET_IDS_JSON: ${{ vars.APP_PRIVATE_SUBNET_IDS_JSON }}
+          APP_AVAILABILITY_ZONES_JSON: ${{ vars.APP_AVAILABILITY_ZONES_JSON }}
+          APP_CERTIFICATE_ARNS_JSON: ${{ vars.APP_CERTIFICATE_ARNS_JSON }}
+          APP_EDGE_CERTIFICATE_ARNS_JSON: ${{ vars.APP_EDGE_CERTIFICATE_ARNS_JSON }}
+          APP_CERTIFICATE_ARN: ${{ vars.APP_CERTIFICATE_ARN }}
+          APP_HOSTED_ZONE_IDS_JSON: ${{ vars.APP_HOSTED_ZONE_IDS_JSON }}
+          APP_JWT_SECRET_NAME: ${{ vars.APP_JWT_SECRET_NAME }}
+          APP_DATABASE_SECRET_NAME: ${{ vars.APP_DATABASE_SECRET_NAME }}
+          APP_JWT_SECRET_ARN: ${{ vars.APP_JWT_SECRET_ARN }}
+          APP_DATABASE_SECRET_ARN: ${{ vars.APP_DATABASE_SECRET_ARN }}
+          APP_DATABASE_HOST: ${{ vars.APP_DATABASE_HOST }}
+          APP_DATABASE_PORT: ${{ vars.APP_DATABASE_PORT }}
+          APP_DATABASE_NAME: ${{ vars.APP_DATABASE_NAME }}
+
+      - name: Deploy app stack
+        run: npm run deploy:aws
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          EMAIL_AUTH_FROM_EMAIL: ${{ vars.EMAIL_AUTH_FROM_EMAIL }}
+          EMAIL_AUTH_FROM_NAME: ${{ vars.EMAIL_AUTH_FROM_NAME }}
+          EMAIL_AUTH_SES_IDENTITY_ARN: ${{ vars.EMAIL_AUTH_SES_IDENTITY_ARN }}
+          GOOGLE_ANALYTICS_MEASUREMENT_ID: ${{ vars.GOOGLE_ANALYTICS_MEASUREMENT_ID }}
+          GOOGLE_ANALYTICS_API_SECRET: ${{ secrets.GOOGLE_ANALYTICS_API_SECRET }}
+          ALLOWED_EMAILS_JSON: ${{ vars.ALLOWED_EMAILS_JSON }}
+          ALLOWED_EMAIL_DOMAINS_JSON: ${{ vars.ALLOWED_EMAIL_DOMAINS_JSON }}
+          ALLOW_ALL_VERIFIED_GOOGLE_ACCOUNTS: ${{ vars.ALLOW_ALL_VERIFIED_GOOGLE_ACCOUNTS }}
+          SUPER_ADMIN_EMAILS: ${{ vars.SUPER_ADMIN_EMAILS }}
+          DOMAINS_JSON: ${{ vars.DOMAINS_JSON }}
+          APP_VPC_ID: ${{ vars.APP_VPC_ID }}
+          APP_LAMBDA_SECURITY_GROUP_ID: ${{ vars.APP_LAMBDA_SECURITY_GROUP_ID }}
+          APP_PRIVATE_SUBNET_IDS_JSON: ${{ vars.APP_PRIVATE_SUBNET_IDS_JSON }}
+          APP_AVAILABILITY_ZONES_JSON: ${{ vars.APP_AVAILABILITY_ZONES_JSON }}
+          APP_CERTIFICATE_ARNS_JSON: ${{ vars.APP_CERTIFICATE_ARNS_JSON }}
+          APP_EDGE_CERTIFICATE_ARNS_JSON: ${{ vars.APP_EDGE_CERTIFICATE_ARNS_JSON }}
+          APP_CERTIFICATE_ARN: ${{ vars.APP_CERTIFICATE_ARN }}
+          APP_HOSTED_ZONE_IDS_JSON: ${{ vars.APP_HOSTED_ZONE_IDS_JSON }}
+          APP_JWT_SECRET_NAME: ${{ vars.APP_JWT_SECRET_NAME }}
+          APP_DATABASE_SECRET_NAME: ${{ vars.APP_DATABASE_SECRET_NAME }}
+          APP_JWT_SECRET_ARN: ${{ vars.APP_JWT_SECRET_ARN }}
+          APP_DATABASE_SECRET_ARN: ${{ vars.APP_DATABASE_SECRET_ARN }}
+          APP_DATABASE_HOST: ${{ vars.APP_DATABASE_HOST }}
+          APP_DATABASE_PORT: ${{ vars.APP_DATABASE_PORT }}
+          APP_DATABASE_NAME: ${{ vars.APP_DATABASE_NAME }}

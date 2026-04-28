@@ -1,0 +1,5 @@
+bucket       = "replace-with-your-terraform-state-bucket"
+key          = "go-links/foundation.tfstate"
+region       = "us-east-2"
+encrypt      = true
+use_lockfile = true

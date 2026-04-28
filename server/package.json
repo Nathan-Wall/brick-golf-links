@@ -1,0 +1,38 @@
+{
+  "name": "server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json && mkdir -p dist/content && cp content/privacy-policy.md dist/content/privacy-policy.md",
+    "lint": "tsc --noEmit",
+    "migrate": "tsx src/db/run-migrations.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.906.0",
+    "@aws-sdk/client-sesv2": "^3.1032.0",
+    "@aws-sdk/client-sqs": "^3.1021.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "google-auth-library": "^10.4.1",
+    "jose": "^6.1.0",
+    "nanoid": "^5.1.7",
+    "pg": "^8.16.3",
+    "redis": "^5.11.0",
+    "serverless-http": "^4.0.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.161",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.6.0",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

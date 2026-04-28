@@ -1,0 +1,28 @@
+{
+  "name": "infra",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "cdk:bootstrap": "cdk bootstrap --app \"node --loader ts-node/esm bin/bootstrap.ts\"",
+    "cdk:synth": "cdk synth GoLinksAppStack",
+    "cdk:deploy": "cdk deploy GoLinksAppStack",
+    "cdk:diff": "cdk diff GoLinksAppStack",
+    "cdk:deploy:app": "cdk deploy GoLinksAppStack --require-approval never",
+    "cdk:diff:app": "cdk diff GoLinksAppStack"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.196.0",
+    "constructs": "^10.4.2",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "aws-cdk": "2.1114.1",
+    "esbuild": "^0.25.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
