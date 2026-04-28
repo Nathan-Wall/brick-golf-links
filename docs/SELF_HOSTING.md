@@ -93,7 +93,7 @@ If you enable SES-backed email auth, request production access for SES manually 
 
 ## 3. Provision the AWS Foundation
 
-The starter Terraform foundation lives in [terraform/foundation](/workspace/terraform/foundation).
+The starter Terraform foundation lives in [terraform/foundation](../terraform/foundation).
 
 Copy the examples:
 
@@ -194,7 +194,7 @@ Prefer the secret name variables over the ARN fallback variables.
 
 ## 5. Configure GitHub Secrets and Variables
 
-The deploy workflow is in [.github/workflows/deploy.yml](/workspace/.github/workflows/deploy.yml#L1) and deploys from `main` or manual dispatch into the GitHub `production` environment.
+The deploy workflow is in [.github/workflows/deploy.yml](../.github/workflows/deploy.yml#L1) and deploys from `main` or manual dispatch into the GitHub `production` environment.
 
 The fastest handoff path is to sync the Terraform-produced GitHub variable map directly:
 

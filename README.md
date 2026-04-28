@@ -4,7 +4,7 @@ Multi-domain shortlinks for sharing and personal use.
 
 ## Self-Hosting
 
-For an end-to-end deployment guide, use [docs/SELF_HOSTING.md](/workspace/docs/SELF_HOSTING.md).
+For an end-to-end deployment guide, use [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 
 That guide covers:
 
@@ -95,7 +95,7 @@ The local server applies migrations at boot as well.
 
 ## AWS serverless deployment
 
-Use [docs/SELF_HOSTING.md](/workspace/docs/SELF_HOSTING.md) as the authoritative setup path. This section is reference material for the deployment model and required inputs.
+Use [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md) as the authoritative setup path. This section is reference material for the deployment model and required inputs.
 
 The deployment target is now split by ownership:
 
@@ -125,7 +125,7 @@ Before deploying the app stack, provision these foundation resources manually or
 
 ### Terraform foundation
 
-A starter Terraform foundation is in [terraform/foundation](/workspace/terraform/foundation). It provisions:
+A starter Terraform foundation is in [terraform/foundation](terraform/foundation). It provisions:
 
 - VPC with public and private subnets
 - NAT gateway for Lambda egress
@@ -264,7 +264,7 @@ Two workflows are included:
 
 ### GitHub configuration
 
-For the recommended order of operations, see [docs/SELF_HOSTING.md](/workspace/docs/SELF_HOSTING.md#5-configure-github-secrets-and-variables).
+For the recommended order of operations, see [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md#5-configure-github-secrets-and-variables).
 
 Configure a GitHub Actions OIDC deploy role in AWS, then set these in the repository:
 
